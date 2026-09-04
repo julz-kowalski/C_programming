@@ -1,0 +1,6 @@
+
+
+figure out multifile compiling
+    the problem is duplicate code in each file.
+
+translate buffer to screen format in conversion.c
