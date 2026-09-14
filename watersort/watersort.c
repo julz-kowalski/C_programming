@@ -7,7 +7,8 @@
 // platform
 #include "../typedefine.c"
 
-// only 4 of one number can exist in total vials
+// only 4 of one colour can exist in total vials with
+// total colours being char size
 //
 // 3 4 2 5 3 0 0
 // 4 3 2 1 5 0 0
@@ -33,7 +34,6 @@ typedef char vial[3];
 //
 
 
-
 typedef struct{
     int pos;
     char movevolume;
@@ -41,19 +41,26 @@ typedef struct{
 } top;
 
 
-int colourvolume = 0;
-
+int colours = 0;
 
 
 vial* rackinit(int size){
+
+
+    // TODO     asign rand(); outcomes to colours respective to size, and apply only 4 of each colour to rack
+    //          with sum of colours == size
     vial *rack;
-    if (size >=2) {
+    if (size >=5) {
         size = 5;
+        colours = size-1;
         vial* rack = malloc(size*sizeof(vial));
     } else {
+        colours += (size-2);
         vial* rack = malloc(size*sizeof(vial));
     }
-    colourvolume += (size-2);
+
+
+
     return rack;
 }
 
@@ -107,25 +114,57 @@ _Bool validmove(vial *from, vial *to){
 void movenum(vial *from, vial *to){
     top frop = topvalue(from);
     top toop = topvalue(to);
+    // should probably be the other way around
     if (validmove(from,to) == 0) {
+        // make log file to store errors maybe
         printf("validmove return in movenum returned 0");
     } else {
         // MOVE part of movenum()
         do {
             if (frop.movevolume != 0) {
                 toop.pos -= 1;
+                char *zero = 0;
 
-                to = memset(from[frop.pos], *to[toop.pos], sizeof(char));
+                // memcpy better
+                // than memmove(because of buffer) and memset is used to initialize
+                // data so doesnt work well when data is two bytes long.
+                memcpy(from[frop.pos], to[toop.pos], sizeof(char)); // to modify
+                memcpy(zero, from[frop.pos] , sizeof(char)); // from modify
+
+
                 frop.movevolume -= 1;
 
-                // someone wiser would just use pos values instead of this
                 frop.pos +=1;
-                // arrays are not modifiable
+                // vial not assignable
                 // to[toop.pos] = from[frop.pos];
+
+            } else {
+            break;
             }
         }while (1);
-
-
-
     }
 }
+
+// assigns colour randomly to rack, leaves last 8 rack indexes empty
+void colour_rando(char* rack){
+    // RAND_MAX = int32 limit
+    // per colour loop
+    if(colours == 0){
+        printf("colours initialized but not assigned");
+    }else {
+        // truncated down, probably look at this for future errors
+        int range = RAND_MAX/colours;
+        for (int i = 1; i >= colours; i++) {
+            // probably abstract randomize selection
+
+            // per colour assignage loop
+            for (int ii = 1; ii >= (colours*4); ii++) {
+                if( rack[(rand()/range)] == 0 ){
+                    rack[(rand()/range)] = i;
+                }
+            }
+
+        }
+    }
+}
+// NOTE has not been bug tested
